@@ -1,0 +1,30 @@
+functionsDirectory = "/Users/carleyschroeder/Desktop/my-quiz-folder/netlify/functions"
+functionsDirectoryOrigin = "config-v1"
+plugins = []
+headers = []
+redirects = []
+
+[build]
+publish = "/Users/carleyschroeder/Desktop/my-quiz-folder"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm install"
+functions = "/Users/carleyschroeder/Desktop/my-quiz-folder/netlify/functions"
+
+  [build.environment]
+
+  [build.processing]
+
+    [build.processing.css]
+
+    [build.processing.html]
+
+    [build.processing.images]
+
+    [build.processing.js]
+
+  [build.services]
+
+[functions]
+
+  [functions."*"]
