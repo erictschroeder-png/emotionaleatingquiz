@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Your Emotional Eating Type?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 650px;
+            width: 100%;
+            padding: 48px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1a202c;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #718096;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .email-capture, .question-screen, .result-screen {
+            display: none;
+        }
+
+        .email-capture.active, .question-screen.active, .result-screen.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 24px;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-option {
+            padding: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .answer-option.selected {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            margin-top: 24px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .result-type {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .result-subtitle {
+            font-size: 18px;
+            color: #718096;
+        }
+
+        .result-section {
+            margin-bottom: 32px;
+        }
+
+        .result-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .result-section p {
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+
+        .secondary-type {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .secondary-type h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>What's Your Emotional Eating Type?</h1>
+            <p class="subtitle">Discover your emotional eating pattern in 2 minutes and get your personalized action plan</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Email Capture Screen -->
+        <div class="email-capture active" id="emailCapture">
+            <div class="input-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" placeholder="Enter your first name" required>
+                <span class="error-message" id="firstNameError">Please enter your first name</span>
+            </div>
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email to see your results" required>
+                <span class="error-message" id="emailError">Please enter a valid email address</span>
+            </div>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Question Screens -->
+        <div class="question-screen" id="questionScreen">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="answer-options" id="answerOptions"></div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn" id="backBtn" onclick="previousQuestion()" style="background: #e2e8f0; color: #2d3748; display: none;">Back</button>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-header">
+                <div class="result-type" id="resultType"></div>
+                <div class="result-subtitle" id="resultSubtitle"></div>
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 14px; color: #718096; margin-bottom: 8px;">Pattern Strength: <span id="strengthLabel" style="font-weight: 600; color: #667eea;"></span></div>
+                    <div style="background: #e2e8f0; height: 12px; border-radius: 10px; overflow: hidden;">
+                        <div id="strengthBar" style="height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); transition: width 0.5s ease;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #a0aec0; margin-top: 6px;" id="strengthDescription"></div>
+                </div>
+            </div>
+            <div class="result-section">
+                <h3>Your Pattern:</h3>
+                <p id="resultPattern"></p>
+            </div>
+            <div class="result-section">
+                <h3>What This Means:</h3>
+                <p id="resultMeaning"></p>
+            </div>
+            <div class="result-section">
+                <h3>Your Next Step:</h3>
+                <p id="resultNextStep"></p>
+            </div>
+            <div class="secondary-type" id="secondaryType" style="display: none;">
+                <h4>You also show tendencies of:</h4>
+                <p id="secondaryTypeName"></p>
+            </div>
+            <button class="btn" onclick="showFinalPage()">Continue</button>
+        </div>
+
+        <!-- Final Confirmation Screen -->
+        <div class="result-screen" id="finalScreen">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="margin: 0 auto 24px;">
+                    <circle cx="40" cy="40" r="40" fill="#667eea" opacity="0.1"/>
+                    <path d="M25 40L35 50L55 30" stroke="#667eea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h2 style="font-size: 28px; color: #1a202c; margin-bottom: 12px; font-weight: 700;">Check Your Inbox!</h2>
+                <p style="font-size: 18px; color: #718096;">Your personalized action plan is on its way</p>
+            </div>
+            
+            <div class="result-section">
+                <h3>What's Next:</h3>
+                <p style="margin-bottom: 16px;">We've just sent you an email with:</p>
+                <ul style="color: #4a5568; margin-left: 20px; line-height: 1.8;">
+                    <li>A deep dive into your emotional eating type</li>
+                    <li>Practical strategies tailored specifically to your pattern</li>
+                    <li>Action steps you can implement immediately</li>
+                    <li>Resources to support your journey</li>
+                </ul>
+            </div>
+
+            <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-top: 24px;">
+                <p style="color: #2d3748; font-weight: 600; margin-bottom: 8px;">📧 Email sent to:</p>
+                <p style="color: #4a5568;" id="confirmEmail"></p>
+                <p style="color: #718096; font-size: 14px; margin-top: 12px;">Don't see it? Check your spam folder and add us to your contacts.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "When stressed at work, you:",
+                answers: [
+                    { text: "Skip meals entirely", type: "type3" },
+                    { text: "Grab something crunchy and salty (chips, crackers, pretzels)", type: "type1" },
+                    { text: "Crave something sweet and comforting (chocolate, cookies, ice cream)", type: "type2" },
+                    { text: "Eat mindlessly while working", type: "type4" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            },
+            {
+                text: "Your biggest eating challenges happen:",
+                answers: [
+                    { text: "Late at night when everyone's asleep", type: "type4" },
+                    { text: "During the mid-afternoon energy crash", type: "type1" },
+                    { text: "Right after stressful conversations", type: "type2" },
+                    { text: "On weekends when routine disappears", type: "type3" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            },
+            {
+                text: "When overwhelmed, food makes you feel:",
+                answers: [
+                    { text: "Temporarily calmer and more in control", type: "type1" },
+                    { text: "Guilty and more stressed afterward", type: "type3" },
+                    { text: "Numb to whatever's bothering you", type: "type4" },
+                    { text: "Like you're taking care of yourself", type: "type2" },
+                    { text: "I'm not sure", type: "neutral" }
+                ]
+            },
+            {
+                text: "Your inner voice around food says:",
+                answers: [
+                    { text: "\"I deserve this after the day I've had\"", type: "type1" },
+                    { text: "\"I'll start eating better tomorrow\"", type: "type3" },
+                    { text: "\"I can't stop once I start\"", type: "type4" },
+                    { text: "\"Food is my only reliable comfort\"", type: "type2" },
+                    { text: "None of these quite fit", type: "neutral" }
+                ]
+            },
+            {
+                text: "You emotionally eat most when feeling:",
+                answers: [
+                    { text: "Anxious or worried about the future", type: "type1" },
+                    { text: "Lonely or disconnected from others", type: "type2" },
+                    { text: "Angry or frustrated with a situation", type: "type3" },
+                    { text: "Sad or disappointed in yourself", type: "type4" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            },
+            {
+                text: "Your relationship with food feels:",
+                answers: [
+                    { text: "Like a constant mental battle", type: "type3" },
+                    { text: "Chaotic and unpredictable", type: "type1" },
+                    { text: "Secretive and shameful", type: "type4" },
+                    { text: "Like your only coping mechanism", type: "type2" },
+                    { text: "I'm not sure", type: "neutral" }
+                ]
+            },
+            {
+                text: "After emotional eating, you typically:",
+                answers: [
+                    { text: "Promise yourself you'll do better tomorrow", type: "type3" },
+                    { text: "Research new diets or meal plans", type: "type1" },
+                    { text: "Feel physically uncomfortable and mentally defeated", type: "type4" },
+                    { text: "Try to compensate by eating less the next day", type: "type2" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            },
+            {
+                text: "Foods you turn to emotionally:",
+                answers: [
+                    { text: "Whatever's quick and convenient", type: "type1" },
+                    { text: "Specific childhood comfort foods", type: "type2" },
+                    { text: "High-sugar treats (candy, desserts, pastries)", type: "type3" },
+                    { text: "Crunchy, salty, or creamy textures", type: "type4" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            },
+            {
+                text: "Your emotional eating started:",
+                answers: [
+                    { text: "During a particularly stressful period", type: "type1" },
+                    { text: "In childhood with family food patterns", type: "type2" },
+                    { text: "Gradually over time without noticing", type: "type4" },
+                    { text: "After a major life change or loss", type: "type3" },
+                    { text: "I'm not sure", type: "neutral" }
+                ]
+            },
+            {
+                text: "You feel most in control with food when:",
+                answers: [
+                    { text: "Following a structured routine or plan", type: "type3" },
+                    { text: "Distracted and not thinking about food", type: "type4" },
+                    { text: "Emotionally balanced and calm", type: "type2" },
+                    { text: "Busy and fulfilled with other things", type: "type1" },
+                    { text: "This varies for me", type: "neutral" }
+                ]
+            }
+        ];
+
+        const typeInfo = {
+            type1: {
+                name: "The Stress Reactor",
+                subtitle: "You're a high-achiever who turns to food when life gets overwhelming",
+                pattern: "You're a high-achiever who turns to food when life gets overwhelming. Your eating is directly tied to your stress levels - the busier and more pressured you feel, the more you reach for quick energy fixes. You often eat while multitasking and use food as fuel to keep pushing through demanding days.",
+                meaning: "Your nervous system is in chronic \"go mode,\" and food has become your quick reset button. You're not broken - you're just using the fastest tool available to regulate your stress response. The challenge is that this creates a cycle where stress eating actually adds more stress to your life.",
+                nextStep: "You need stress management tools that work as quickly as food but actually address the root cause. Learning to regulate your nervous system before reaching for food will be a game-changer for you."
+            },
+            type2: {
+                name: "The Comfort Seeker",
+                subtitle: "Food is your emotional support system",
+                pattern: "Food is your emotional support system. You turn to eating when you need comfort, connection, or nurturing - especially during lonely, sad, or overwhelming moments. You likely have specific \"comfort foods\" that feel like a warm hug, often tied to positive childhood memories or feelings of being cared for.",
+                meaning: "You're using food to meet legitimate emotional needs for comfort and connection. This isn't weakness - it's actually showing how much you value taking care of yourself. The issue is that food can only provide temporary emotional relief, leaving the deeper needs unmet.",
+                nextStep: "You'll thrive by building a toolkit of non-food comfort practices and learning to identify what you really need in emotional moments. Creating genuine emotional support systems will transform your relationship with food."
+            },
+            type3: {
+                name: "The Perfectionist Rebel",
+                subtitle: "You live in cycles of control and rebellion",
+                pattern: "You live in cycles of control and rebellion. You create strict food rules, follow them perfectly for a while, then have episodes where you throw all the rules out the window. You think in \"all or nothing\" terms and often feel like you're either \"on track\" or completely derailed.",
+                meaning: "Your brain is rebelling against restriction. The tighter you grip food rules, the stronger the eventual backlash becomes. This isn't a character flaw - it's a natural psychological response to feeling deprived and controlled.",
+                nextStep: "Breaking free from the restrict-rebel cycle is your path to food freedom. You need to learn flexible, sustainable approaches that honor both your need for structure and your desire for autonomy."
+            },
+            type4: {
+                name: "The Overwhelmed Escapist",
+                subtitle: "Food helps you check out from overwhelming emotions",
+                pattern: "Food helps you check out from overwhelming emotions and life circumstances. You often eat mindlessly or find yourself \"coming to\" after eating without really remembering the experience. Food provides a mental escape when everything feels like too much to handle.",
+                meaning: "You're using food as a coping mechanism to manage feelings and situations that feel too big to face directly. This makes complete sense - when life feels overwhelming, seeking relief is natural and human. Food just happens to be readily available and immediately effective.",
+                nextStep: "Learning to stay present with difficult emotions and developing tools to handle life's overwhelm will reduce your need to escape through food. You need both emotional processing skills and practical life management strategies."
+            }
+        };
+
+        let currentQuestion = 0;
+        let answers = {};
+        let userData = {};
+
+        function startQuiz() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            let hasError = false;
+
+            if (!firstName) {
+                document.getElementById('firstNameError').style.display = 'block';
+                hasError = true;
+            } else {
+                document.getElementById('firstNameError').style.display = 'none';
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById('emailError').style.display = 'block';
+                hasError = true;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            if (hasError) return;
+
+            userData = { firstName, email };
+            
+            document.getElementById('emailCapture').classList.remove('active');
+            document.getElementById('questionScreen').classList.add('active');
+            updateProgress();
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const option = document.createElement('div');
+                option.className = 'answer-option';
+                option.textContent = answer.text;
+                
+                // Check if this answer was previously selected
+                if (answers[currentQuestion] && answers[currentQuestion] === answer.type) {
+                    option.classList.add('selected');
+                }
+                
+                option.onclick = () => selectAnswer(index, answer.type);
+                optionsContainer.appendChild(option);
+            });
+
+            // Show/hide back button
+            const backBtn = document.getElementById('backBtn');
+            if (currentQuestion === 0) {
+                backBtn.style.display = 'none';
+                document.getElementById('nextBtn').style.width = '100%';
+            } else {
+                backBtn.style.display = 'block';
+                document.getElementById('nextBtn').style.width = '100%';
+            }
+
+            // Enable next button if answer already exists
+            document.getElementById('nextBtn').disabled = !answers[currentQuestion];
+        }
+
+        function selectAnswer(index, type) {
+            const options = document.querySelectorAll('.answer-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            answers[currentQuestion] = type;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                updateProgress();
+                displayQuestion();
+            } else {
+                calculateResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateProgress();
+                displayQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / (questions.length + 1)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function calculateResults() {
+            const scores = {
+                type1: 0,
+                type2: 0,
+                type3: 0,
+                type4: 0
+            };
+
+            // Count scores, treating neutral as 0.25 points to each type
+            Object.values(answers).forEach(type => {
+                if (type === 'neutral') {
+                    // Distribute neutral answers slightly to all types
+                    scores.type1 += 0.25;
+                    scores.type2 += 0.25;
+                    scores.type3 += 0.25;
+                    scores.type4 += 0.25;
+                } else {
+                    scores[type]++;
+                }
+            });
+
+            const sortedTypes = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            const primaryType = sortedTypes[0][0];
+            const secondaryType = sortedTypes[1][0];
+
+            displayResults(primaryType, secondaryType, scores);
+            submitToWebhook(primaryType, secondaryType, scores);
+        }
+
+        function displayResults(primaryType, secondaryType, scores) {
+            const info = typeInfo[primaryType];
+            const primaryScore = scores[primaryType];
+            
+            document.getElementById('questionScreen').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+            document.getElementById('progressFill').style.width = '100%';
+            
+            document.getElementById('resultType').textContent = info.name;
+            document.getElementById('resultSubtitle').textContent = info.subtitle;
+            document.getElementById('resultPattern').textContent = info.pattern;
+            document.getElementById('resultMeaning').textContent = info.meaning;
+            document.getElementById('resultNextStep').textContent = info.nextStep;
+
+            // Calculate and display strength
+            const percentage = (primaryScore / 10) * 100;
+            let strengthLabel, strengthDescription;
+            
+            if (primaryScore >= 7) {
+                strengthLabel = "Strong Match";
+                strengthDescription = "This pattern strongly resonates with your experiences";
+            } else if (primaryScore >= 5) {
+                strengthLabel = "Clear Match";
+                strengthDescription = "This pattern clearly reflects your tendencies";
+            } else if (primaryScore >= 3) {
+                strengthLabel = "Moderate Match";
+                strengthDescription = "You show this pattern along with other tendencies";
+            } else {
+                strengthLabel = "Mixed Pattern";
+                strengthDescription = "You have a combination of patterns - see your secondary type below";
+            }
+
+            document.getElementById('strengthLabel').textContent = strengthLabel;
+            document.getElementById('strengthBar').style.width = percentage + '%';
+            document.getElementById('strengthDescription').textContent = strengthDescription;
+
+            if (scores[secondaryType] > 0 && scores[secondaryType] >= scores[primaryType] - 2) {
+                document.getElementById('secondaryType').style.display = 'block';
+                document.getElementById('secondaryTypeName').textContent = typeInfo[secondaryType].name;
+            }
+        }
+
+        function showFinalPage() {
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('finalScreen').classList.add('active');
+            document.getElementById('confirmEmail').textContent = userData.email;
+        }
+
+        function submitToWebhook(primaryType, secondaryType, scores) {
+            const webhookURL = 'https://erictschroeder.app.n8n.cloud/webhook/ace6cd03-503c-4a30-8509-eee43d8e01c2';
+            
+            const payload = {
+                firstName: userData.firstName,
+                email: userData.email,
+                primaryType: primaryType,
+                primaryTypeName: typeInfo[primaryType].name,
+                secondaryType: secondaryType,
+                secondaryTypeName: typeInfo[secondaryType].name,
+                scores: scores,
+                answers: answers,
+                timestamp: new Date().toISOString()
+            };
+
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
